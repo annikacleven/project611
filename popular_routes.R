@@ -1,6 +1,6 @@
 #this file produces the plot of the most popular routes to summit Rainier
 #
-install.packages("tidyverse")
+#install.packages("tidyverse")
 library(tidyverse)
 library(ggplot2)
 
