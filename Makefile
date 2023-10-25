@@ -1,3 +1,10 @@
+PHONY: clean
+
+clean:
+	rm derived_data/all_data.csv
+	rm figures/log_popular_routes.png
+	rm figures/hiker_vs_success.png
+	
 derived_data/all_data.csv: data_clean.R utils.R\
 source_data/climbing_statistics.csv\
 source_data/Rainier_Weather.csv
