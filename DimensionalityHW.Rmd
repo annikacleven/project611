@@ -1,0 +1,135 @@
+---
+title: "Dimensionality HW"
+author: "Annika Cleven"
+date: "2023-10-27"
+output:
+  pdf_document: default
+  html_document: default
+editor_options:
+  chunk_output_type: console
+---
+Here is the Dimensionality and Clustering HW!
+
+First we will load in the libraries needed for clustering. 
+
+```{r}
+library(readr)
+#install.packages("ggpubr")
+#install.packages("tidyverse")
+#install.packages("factoextra")
+#library(factoextra)
+#library(ggpubr)
+library(tidyverse)
+```
+
+Then we can read in the data and create some variables that we may need later.  For pca, it can be helpful to color the points by a certain variable.  It is easier to see the effect of some variables if they are categorical instead of continuous.   
+
+```{r}
+all_data <- read_csv("~/work/derived_data/all_data.csv")
+
+all_data_no_na <- all_data %>%
+  drop_na() %>%
+  filter(`Success Percentage` <= 1) %>%
+  mutate(season = lubridate::quarter(lubridate::mdy(Date))) %>%
+  mutate(temp_cat = case_when(
+    `Temperature AVG`>= 0 & `Temperature AVG`<= 10 ~ "0-10",
+    `Temperature AVG`>= 10 & `Temperature AVG`<= 20 ~ "10-20",
+    `Temperature AVG`>= 20 & `Temperature AVG`<= 30 ~ "20-30",
+    `Temperature AVG`>= 30 & `Temperature AVG`<= 40 ~ "30-40",
+    `Temperature AVG`>= 40 & `Temperature AVG`<= 50 ~ "40-50",
+    `Temperature AVG`>= 50 & `Temperature AVG`<= 60 ~ "50-60"
+    ),
+    success_trip = case_when(`Success Percentage` > 0 ~ "Success",
+                             `Success Percentage` == 0 ~ "Fail"))
+```
+
+Here are some necessary set-up points to PCA
+```{r}
+rainier.matrix <- all_data %>%
+  drop_na() %>%
+  filter(`Success Percentage` <= 1) %>%
+  dplyr::select(-c(Route, Date,month_day2)) %>%
+  as.matrix()
+
+rownames(rainier.matrix) <- all_data_no_na$Date
+
+rainier.pca <- prcomp(rainier.matrix)
+```
+
+Now we will look through some plots to see if there are any patterns and clustering in the data.  
+
+First we have a screeplot.  In principal component analysis the first principal component is the line through the cloud of data that best explains the data. The second is the line that then explains the next best amount of the variance in the data.  From the scree plot below we can see that the first component in our PCA explains almost 60% of the variance in the data and the second component explains a little over 30% of the variance.  These are pretty good results. 
+
+Note: I am having package issues so I can not show this plot right now, but since it was not part of the lecture and just an additional plot that I enjoy including I am leaving the code. 
+
+```{r, include = FALSE}
+#fviz_screeplot(rainier.pca)
+#fviz_pca_ind(rainier.pca, axes = c(1,2))
+```
+
+```{r}
+PC1 <- rainier.pca$x[,1]
+PC2 <- rainier.pca$x[,2]
+
+rainier.tbl <- cbind(all_data_no_na, PC1)
+```
+
+Now we will explore some plots:
+
+```{r}
+byquarter <- rainier.tbl %>%
+  ggplot(aes(x = PC1, y = PC2, color = as.factor(season)))+
+  geom_point()
+byquarter
+```
+
+Here we looked to see if the "season" which is defined by the quarter of the year that the date is in, explains any of the data.  We can see that the first quarter of the year, in pink, is clustered in a right strip of the plot.  Also, the third quarter of the year is clustered towards the left/upper left part of the plot. Since there are most likely underlying reasons that the quarters are clustering together we will look at some of the weather features that may better represent the relationship here. 
+
+```{r}
+bytempcat <- rainier.tbl %>%
+  ggplot(aes(x = PC1, y = PC2, color = as.factor(temp_cat)))+
+  geom_point()
+bytempcat
+
+#ggpubr::ggarrange(byquarter, bytempcat) 
+```
+
+We can see that the temperature category also seems to have some clustering elements between the two principal components. We see that there is again a strip on the right side of the graph in green which represents 20-30 degrees Celsius.  The yellow and roughly half of the light blue points which are the 10-20 and 30-40 categories, respectively, are nearby this strip.  We can also see that the 40-50 temperature category are clustered in the left/upper left of the plot. 
+
+When looking at the two plots side by side, we can see the comparisons between the clustering by the quarter of the year and the temperature.  This helps confirm to use that the clustering due to the quarter of the year is largely related to the temperature of the day. 
+
+```{r}
+rainier.tbl %>%
+  ggplot(aes(x = PC1, y = PC2, color = `Success Percentage`))+
+  geom_point()
+```
+
+```{r}
+rainier.tbl %>%
+  ggplot(aes(x = PC1, y = PC2, color = as.factor(success_trip)))+
+  geom_point()
+```
+
+Our clustering with the raw success percentage between the principal components does not allow us to glean much information because of the continuous nature of the variable. When breaking it down by whether there was a successful member on the trip (success) or everyone failed (fail), we can see that the the successes cluster towards the upper left part of the plot, whereas the fails cluster towards the middle and the right of the graph.  There is not a clear split in the points though. 
+
+```{r}
+rainier.tbl %>%
+  ggplot(aes(x = PC1, y = PC2, color = `Wind Speed Daily AVG`))+
+  geom_point()
+```
+
+```{r}
+rainier.tbl %>%
+  ggplot(aes(x = PC1, y = PC2, color = `Relative Humidity AVG`))+
+  geom_point()
+```
+
+It is hard to glean much information from looking at the pattern in the data with Relative Humidity and Wind Speed.  These may need to be put into categories in the future. 
+
+```{r}
+rainier.tbl %>%
+  ggplot(aes(x = PC1, y = `Temperature AVG`, color = as.factor(success_trip)))+
+  geom_point()
+```
+
+Since the temperature categories seemed to cluster well and the clusters looked similar to the overall success status of the trip, we plotted the first principal component against the average temperature and coded by the success of the trip. We can see that as the PC1 increases the temperature average follows a negative linear.  Therefore we could possible predict that the first component is represents a lot of the temperature average.  Along with this relationship we can see that the successes are clustered in the top part of the plot and roughly follow the negative linear relationship shown across all points.  This shows that there is a relationship with higher temperatures and successful trips.  Again, remember that a successful trip is defined as a trip that had at least one successful hiker.   
