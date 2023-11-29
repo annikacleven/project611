@@ -20,6 +20,10 @@ figures/log_popular_routes.png: popular_routes.R derived_data/all_data.csv\
 utils.R
 	Rscript popular_routes.R
 	
+figures/popular_routes.png: popular_routes.R derived_data/all_data.csv\
+utils.R
+	Rscript popular_routes.R
+	
 figures/hiker_vs_success.png: hiker_vs_success.R derived_data/all_data.csv\
 utils.R
 	Rscript hiker_vs_success.R
