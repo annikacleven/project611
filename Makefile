@@ -40,5 +40,15 @@ figures/pc1_and_temp.png: PCAanalysisplots.R derived_data/all_data.csv\
 utils.R
 	Rscript PCAanalysisplots.R
 	
+derived_data/lasso_coefs.csv: lassomodel.R derived_data/all_data.csv\
+utils.R
+	Rscript lassomodel.R
+
+figures/best_lambda.png: lassomodel.R derived_data/all_data.csv\
+utils.R
+	Rscript lassomodel.R
 	
+MtRainierProject.html: MtRainierProject.Rmd figures/pca_quarter.png\
+figures/popular_routes.png
+	Rscript -e 'rmarkdown::render("MtRainierProject.Rmd")'	
 	
