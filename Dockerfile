@@ -2,14 +2,13 @@ FROM rocker/verse
 #RUN apt update && apt install -y man-db && rm -rf /var/lib/apt/lists/*
 #RUN yes|unminimize
 
-ARG USER_ID
-RUN usermod -u $USER_ID rstudio 
+#ARG USER_ID
+#RUN usermod -u $USER_ID rstudio 
 #&& groupmod -g $GROUP_ID rstudio
-RUN chown -R rstudio:rstudio /home/rstudio
+#RUN chown -R rstudio:rstudio /home/rstudio
 
 #INSTALL packages
-RUN R -e "install.packages('tidyverse', 'readr', 'dplyr', 'ggplot2',
-'lubridate','glmnet','caTools')"
+RUN R -e "install.packages(c('lubridate','glmnet','caTools'))"
 
 #python 
 RUN apt update -y && apt install -y python3-pip
