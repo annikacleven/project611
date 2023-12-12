@@ -1,0 +1,83 @@
+---
+title: "Summitting Mt. Rainier"
+author: "Annika Cleven"
+output: html_document
+date: "2023-12-01"
+---
+## Motivation
+
+  Standing at 14,410 feet above sea level, Mt. Rainier is an iconic landscape in the state of Washington and a beloved National Park in the United States National Park System.  Part of the lure of Mt. Rainier is that is the most glaciated peak in the continental United States.  While many visitors from around the country and around the world, visit Mt. Rainier and go on the many hikes in the National Parks, a smaller percentage of those visitors attempt to summit Mt. Rainier. 
+  
+  While Mt. Rainier is not Mt. Everest, summiting Mt. Rainier is a difficult challenge and success is surely not guaranteed.  To summit Mt. Rainier, hikers must climb over 9,000 feet and trek over 10 miles, one way.  Along with the physical demand there are the added challenges of elevation sickness, cold temperatures, snowy conditions, and technical hiking, climbing, and mountaineering skills required.  As an avid hiker and backpacker, I wanted to know what were some fo the elements that could predict a higher success rate.
+
+
+  Using data downloaded from Kaggle, I analyzed weather data captured by the Northwest Avalanche Center (https://www.nwac.us) and climbing statistics from (http://www.mountrainierclimbing.us/routes).  This data was collected in 2014 and 2015.  Using this data, I investigated what weather factors play a major role in the summit success of Mt. Rainier. 
+
+#### Route Selection 
+
+There are 25 different routes to the summit that hikers can choose from. In some exploratory data analysis, we can see that the Disappointment Cleaver route is the most popular route by far.  More research would be needed to investigate why the Disappointment Cleaver is the most popular route or why some hikers choose to not attempt to summit via the Disappointment Cleaver. This informs us that when we begin to analyze the weather data with the climbing statistics, the majority of the data is controlled by the route.
+
+![](./figures/popular_routes.png){width=50%}
+
+#### Time of the Year 
+
+In our analysis we can see that the pattern amongst hikers is similar between the years of 2014 and 2015, as one may hypothesize.  We see that the most popular time to attempt to summit is between day 180-200 of the year.  This is in the months of June and July, which in Washington are some of the warmest times of the year.  This guided us to hypothesize that warm temperatures may be indicative of greater success, when we model predicted success later in this analysis.  
+
+Also, in this plot we see that the relative difference between total hikers and succesfful hikers is roughly the same through the time of the year and across the two years.  Around the 50th day of the year in 2014 we can see that the rate of success looks to be uncharacterstically low compared to the counts of the other days of these years. 
+
+![](./figures/hiker_vs_success.png){width=50%}
+
+#### PCA Analysis
+
+To look into some of the patterns of the data we looked at how the data may cluster, especially by the different weather variables.  All of our weather variables were continuous, so we binned the variables into different categories.
+
+Before too deeply investigating the clustering in strictly weather related variables we looked at the clustering in Principal Component Analysis due to the quarter of the year. 
+
+![](./figures/pca_quarter.png){width=50%}
+
+We can see with a plot of the first principal component against the second principal component against the second that there is evidence of clustering by the quarter of the year.  Most clearly clustered, we see that the first quarter is clustered toward the higher values of PC1 and midrange values of PC2.
+
+When looking through possible clustering with weather variables, the one that stood out was clustering my temperature categories.  Each category includes a range of 10 degrees in Fahrenheit. 
+
+![](./figures/pca_temp.png){width=50%}
+ In this plot we can see some clear clustering by the temperature categories. We observe that the clusters are similar to the clustering we saw in the cluster by quarter of the year.Since the clustering by temperature category follows the same pattern as the clustering by quarter we can conclude that the clusters are based on temperature and thus this is the underlying reason for the clustering by year quarter.  
+ 
+It is also important to note the trend that the warmer temperatures are towards the lower range of PC1 while the colder temperature categories are on the higher range of PC1.  We next analyze this relationship between the first principal component and the Temperature AVG
+ 
+![](./figures/pc1_and_temp.png){width=50%}
+
+This investigation shows us that the temperature has a distinct negative linear trend with the first principal component.  Since the first principal component is the line through the cloud of data that explains the most variation of data, then we can say that the temperature average has a major role in explaining the variation of the data.
+
+Also, in this plot we investigated the role of the trip success in regards to the temperature average.  As the temperature average increases we can see that there are more successful trips compared to when the temperature average is colder.  This will be important to investigate when we build models to predict the success of a trip.    
+
+#### Prediction Modeling
+
+After seeing the clustering based on average temperature and potential clustering with other weather variables, I wanted to see if we could create and analyze a model that predicts the success of a trip.  For our purposes a successful trip is defined as if at least one person in the group completed the summit of Mt. Rainier.
+
+We first created a lasso model with all of the weather variables: Temperature AVG, Relative Humidity AVG, Wind Speed Daily AVG, Wind Direction AVG, and Solar Radiation AVG
+
+```{r, echo = FALSE, warning = FALSE, message=FALSE}
+library(readr)
+install.packages("kableExtra")
+library(kableExtra)
+df <- read_csv("./derived_data/lasso_coefs.csv")
+df %>%
+  kbl() %>%
+  kable_styling()
+```
+
+Looking at the coefficients of the model we can see that other than the intercept the coefficients with the greatest absolute impact are the average daily wind speed, average relative humidity, and the average temperature, respectively.  According to our model, the average daily wind speed is the most important variable for predicting the success of a summit attempt.  Surprising to my original thoughts and hypotheses, the model indicates that as the wind speed increases the chance of success decreases.  The average relative humidity and average temperature coefficients were positive so as either of the two increased, the chance of success increases.  It should be noted that each of the coefficients in this model were relatively small.  
+
+Then creating a linear model with the two largest coeficients found in the lasso model, The Relative Humidity AVG and Wind Speed Daily AVG, we can see that the missclassification error is 46.69%.  
+
+*INSERT TABLE*
+
+Also, apart of this analysis we can see how the model is predicting success or failure.  We see that there is a dividing line in roughly the 30-40 mph wind speed and that the relative humidity also impacts the probability of success.
+
+![](./figures/raster.png){width=50%}
+
+
+
+
+
+
