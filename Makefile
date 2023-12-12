@@ -3,6 +3,7 @@ PHONY: clean
 clean:
 	rm -rf derived_data/
 	rm -rf figures/
+	rm -rf MtRainierProject.html
 	#rm -rf derived_data/all_data.csv
 	#rm -rf figures/log_popular_routes.png
 	#rm -rf figures/hiker_vs_success.png
@@ -48,7 +49,12 @@ figures/best_lambda.png: lassomodel.R derived_data/all_data.csv\
 utils.R
 	Rscript lassomodel.R
 	
+figures/raster.png: lassomodel.R derived_data/all_data.csv\
+utils.R
+	Rscript lassomodel.R
+	
 MtRainierProject.html: MtRainierProject.Rmd figures/pca_quarter.png\
-figures/popular_routes.png
+figures/popular_routes.png figures/pc1_and_temp.png figures/hiker_vs_success.png\
+figures/pca_temp.png derived_data/lasso_coefs.csv
 	Rscript -e 'rmarkdown::render("MtRainierProject.Rmd")'	
 	

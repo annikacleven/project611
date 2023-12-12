@@ -8,7 +8,7 @@ FROM rocker/verse
 #RUN chown -R rstudio:rstudio /home/rstudio
 
 #INSTALL packages
-RUN R -e "install.packages(c('lubridate','glmnet','caTools'))"
+RUN R -e "install.packages(c('lubridate','glmnet','caTools', 'gbm', 'kableExtra'))"
 
 #python 
 RUN apt update -y && apt install -y python3-pip

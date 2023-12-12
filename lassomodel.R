@@ -60,7 +60,64 @@ coefs <-coef(best_model)
 Names <- c(coefs@Dimnames[[1]])
 Values <- c(coefs@x)
 
-coef_df <- as.data.frame(rbind(Names, round(Values,6)))
+coef_df <-as.data.frame(cbind(Names, round(Values,6)))
 
 ensure_directory("derived_data")
-write.table(coef_df, "derived_data/lasso_coefs.csv")
+write_csv(coef_df, "derived_data/lasso_coefs.csv")
+
+set.seed(12345)
+
+rainier_train_tbl <- slice_sample(all_data_no_na, prop = .8, replace=FALSE)
+rainier_test_tbl <- setdiff(all_data_no_na, rainier_train_tbl)
+
+linmod <- lm(as.numeric(success_trip) ~ `Relative Humidity AVG` +
+                `Wind Speed Daily AVG`, data = rainier_train_tbl)
+
+linpreds <- predict(linmod, rainier_test_tbl)
+min <- min(linpreds)
+max <- max(linpreds)
+linpreds_transform <- (linpreds-min)/(max-min)
+
+rainier_test_tbl <- rainier_test_tbl %>%
+  mutate(probs = linpreds_transform,
+         prediction = ifelse(probs < .500, "Fail", "Success"))
+
+#misclassification rate
+mc <- sum(rainier_test_tbl$success_trip != rainier_test_tbl$prediction)/length(rainier_test_tbl$success_trip)
+
+#pred table
+pred_tbl_lin <- rainier_test_tbl %>% group_by(success_trip, prediction) %>% tally()
+
+#creating a grid table of temp and humidity avg
+grid_vec1 <- seq(from  = 0, to = 70, by = 1)
+grid_vec2 <- seq(from  = 0, to = 100, by = 1)
+grid_tbl <- expand_grid(`Wind Speed Daily AVG` = grid_vec1, `Relative Humidity AVG` = grid_vec2)
+#dim(grid_tbl)
+
+linpreds3 <- predict(linmod, grid_tbl)
+min <- min(linpreds3)
+max <- max(linpreds3)
+linpreds3_transform <- (linpreds3-min)/(max-min)
+grid_tbl <- grid_tbl %>%
+  mutate(prob_of_success = linpreds3_transform,
+         prediction = ifelse(prob_of_success < .500, "Fail", "Success"))
+raster <- ggplot(grid_tbl, aes(`Wind Speed Daily AVG`, `Relative Humidity AVG`, z=prob_of_success,fill = prob_of_success)) +
+  geom_raster() +
+  stat_contour(breaks=c(0.5), color="black")+
+  scale_fill_viridis_b()+
+  labs(fill = "Predicted Prob of Success")
+
+ensure_directory("figures")
+ggsave("figures/raster.png", raster)
+
+
+
+
+
+
+
+
+
+
+
+
