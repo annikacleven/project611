@@ -45,16 +45,21 @@ derived_data/lasso_coefs.csv: lassomodel.R derived_data/all_data.csv\
 utils.R
 	Rscript lassomodel.R
 
-figures/best_lambda.png: lassomodel.R derived_data/all_data.csv\
-utils.R
-	Rscript lassomodel.R
-	
 figures/raster.png: lassomodel.R derived_data/all_data.csv\
 utils.R
 	Rscript lassomodel.R
+
+derived_data/pred_tbl_linearmod.csv:lassomodel.R derived_data/all_data.csv\
+utils.R
+	Rscript lassomodel.R
+
+derived_data/pred_tbl_boostmod.csv:boostmodel.R derived_data/all_data.csv\
+utils.R
+	Rscript boostmodel.R
 	
 MtRainierProject.html: MtRainierProject.Rmd figures/pca_quarter.png\
 figures/popular_routes.png figures/pc1_and_temp.png figures/hiker_vs_success.png\
-figures/pca_temp.png derived_data/lasso_coefs.csv
+figures/pca_temp.png derived_data/lasso_coefs.csv derived_data/pred_tbl_boostmod.csv\
+derived_data/pred_tbl_linearmod.csv figures/raster.png
 	Rscript -e 'rmarkdown::render("MtRainierProject.Rmd")'	
 	

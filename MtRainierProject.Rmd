@@ -4,14 +4,16 @@ author: "Annika Cleven"
 output: html_document
 date: "2023-12-01"
 ---
-## Motivation
+### Motivation
 
-  Standing at 14,410 feet above sea level, Mt. Rainier is an iconic landscape in the state of Washington and a beloved National Park in the United States National Park System.  Part of the lure of Mt. Rainier is that is the most glaciated peak in the continental United States.  While many visitors from around the country and around the world, visit Mt. Rainier and go on the many hikes in the National Parks, a smaller percentage of those visitors attempt to summit Mt. Rainier. 
+Standing at 14,410 feet above sea level, Mt. Rainier is an iconic landscape in the state of Washington and a beloved National Park in the United States National Park System.  Part of the lure of Mt. Rainier is that it is the most glaciated peak in the continental United States.  While many visitors from around the country and around the world visit Mt. Rainier and go on the many hikes in the National Parks, a much smaller portion of those visitors attempt to summit Mt. Rainier. 
   
-  While Mt. Rainier is not Mt. Everest, summiting Mt. Rainier is a difficult challenge and success is surely not guaranteed.  To summit Mt. Rainier, hikers must climb over 9,000 feet and trek over 10 miles, one way.  Along with the physical demand there are the added challenges of elevation sickness, cold temperatures, snowy conditions, and technical hiking, climbing, and mountaineering skills required.  As an avid hiker and backpacker, I wanted to know what were some fo the elements that could predict a higher success rate.
+  
+  While Mt. Rainier is not Mt. Everest, summiting Mt. Rainier is a difficult challenge and success is surely not guaranteed.  To summit Mt. Rainier, hikers must climb over 9,000 feet and trek over 10 miles, one way.  Along with the physical demand there are the added challenges of elevation sickness, cold temperatures, snowy conditions, and technical hiking, climbing, and mountaineering skills required.  As an avid hiker and backpacker, I wanted to know what were some of the elements that could predict a higher chance of a successful summit trip.
 
 
-  Using data downloaded from Kaggle, I analyzed weather data captured by the Northwest Avalanche Center (https://www.nwac.us) and climbing statistics from (http://www.mountrainierclimbing.us/routes).  This data was collected in 2014 and 2015.  Using this data, I investigated what weather factors play a major role in the summit success of Mt. Rainier. 
+  Using data downloaded from Kaggle, I analyzed weather data captured by the Northwest Avalanche Center (https://www.nwac.us) and climbing statistics from (http://www.mountrainierclimbing.us/routes).  This data was collected in 2014 and 2015.  Using this data, I investigated what weather factors, if any, play a role in the summit success of Mt. Rainier. 
+ 
 
 #### Route Selection 
 
@@ -21,9 +23,10 @@ There are 25 different routes to the summit that hikers can choose from. In some
 
 #### Time of the Year 
 
-In our analysis we can see that the pattern amongst hikers is similar between the years of 2014 and 2015, as one may hypothesize.  We see that the most popular time to attempt to summit is between day 180-200 of the year.  This is in the months of June and July, which in Washington are some of the warmest times of the year.  This guided us to hypothesize that warm temperatures may be indicative of greater success, when we model predicted success later in this analysis.  
+In our analysis we can see that the pattern amongst when hikers attempt to summit is similar between the years of 2014 and 2015, as one may hypothesize.  We see that the most popular time to attempt to summit is between day 180-200 of the year.  This is in the months of June and July which, in Washington, are some of the warmest times of the year.  This guided us to hypothesize that warm temperatures may be indicative of greater success, when we model predicted success later in this analysis.  
 
-Also, in this plot we see that the relative difference between total hikers and succesfful hikers is roughly the same through the time of the year and across the two years.  Around the 50th day of the year in 2014 we can see that the rate of success looks to be uncharacterstically low compared to the counts of the other days of these years. 
+Also, in this plot we see that the relative difference between total hikers and successful hikers is roughly the same through the time of the year and across the two years.  There seems to be one outlier region around the 50th day of the year in 2014 we can see that the rate of success looks to be uncharacteristically low compared to the counts of the other days of these years.
+
 
 ![](./figures/hiker_vs_success.png){width=50%}
 
@@ -35,12 +38,14 @@ Before too deeply investigating the clustering in strictly weather related varia
 
 ![](./figures/pca_quarter.png){width=50%}
 
-We can see with a plot of the first principal component against the second principal component against the second that there is evidence of clustering by the quarter of the year.  Most clearly clustered, we see that the first quarter is clustered toward the higher values of PC1 and midrange values of PC2.
+We can see with a plot of the first principal component against the second principal component that there is evidence of clustering by the quarter of the year.  Most clearly clustered, we see that the first quarter is clustered toward the higher values of PC1 and midrange values of PC2.
 
 When looking through possible clustering with weather variables, the one that stood out was clustering my temperature categories.  Each category includes a range of 10 degrees in Fahrenheit. 
 
 ![](./figures/pca_temp.png){width=50%}
- In this plot we can see some clear clustering by the temperature categories. We observe that the clusters are similar to the clustering we saw in the cluster by quarter of the year.Since the clustering by temperature category follows the same pattern as the clustering by quarter we can conclude that the clusters are based on temperature and thus this is the underlying reason for the clustering by year quarter.  
+
+
+In this plot we can see some clear clustering by the temperature categories. We observe that the clusters are similar to the clustering we saw in the cluster by quarter of the year.Since the clustering by temperature category follows the same pattern as the clustering by quarter we can conclude that the clusters are based on temperature and thus this is the underlying reason for the clustering by year quarter.  
  
 It is also important to note the trend that the warmer temperatures are towards the lower range of PC1 while the colder temperature categories are on the higher range of PC1.  We next analyze this relationship between the first principal component and the Temperature AVG
  
@@ -54,11 +59,12 @@ Also, in this plot we investigated the role of the trip success in regards to th
 
 After seeing the clustering based on average temperature and potential clustering with other weather variables, I wanted to see if we could create and analyze a model that predicts the success of a trip.  For our purposes a successful trip is defined as if at least one person in the group completed the summit of Mt. Rainier.
 
-We first created a lasso model with all of the weather variables: Temperature AVG, Relative Humidity AVG, Wind Speed Daily AVG, Wind Direction AVG, and Solar Radiation AVG
+We first created a lasso model with all of the weather variables: Temperature AVG, Relative Humidity AVG, Wind Speed Daily AVG, Wind Direction AVG, and Solar Radiation AVG.  The optimal lambda value to tune the model was determined to be .00124.
+
+Using this lambda we minimized the mean square error and the following coefficients for the model were the result.
 
 ```{r, echo = FALSE, warning = FALSE, message=FALSE}
 library(readr)
-install.packages("kableExtra")
 library(kableExtra)
 df <- read_csv("./derived_data/lasso_coefs.csv")
 df %>%
@@ -66,15 +72,64 @@ df %>%
   kable_styling()
 ```
 
-Looking at the coefficients of the model we can see that other than the intercept the coefficients with the greatest absolute impact are the average daily wind speed, average relative humidity, and the average temperature, respectively.  According to our model, the average daily wind speed is the most important variable for predicting the success of a summit attempt.  Surprising to my original thoughts and hypotheses, the model indicates that as the wind speed increases the chance of success decreases.  The average relative humidity and average temperature coefficients were positive so as either of the two increased, the chance of success increases.  It should be noted that each of the coefficients in this model were relatively small.  
+Looking at the coefficients of the model we can see that other than the intercept the coefficients with the greatest absolute value are the average daily wind speed, average relative humidity, and the average temperature, respectively.  According to our model, the average daily wind speed is the most important variable for predicting the success of a summit attempt.
 
-Then creating a linear model with the two largest coeficients found in the lasso model, The Relative Humidity AVG and Wind Speed Daily AVG, we can see that the missclassification error is 46.69%.  
+As one might have hypothesized, the model indicates that as the wind speed increases the chance of success decreases.  The average relative humidity and average temperature coefficients were positive so as either of the two increased, the chance of success increases.  It should be noted that each of the coefficients in this model were relatively small.  
 
-*INSERT TABLE*
+Then creating a linear model with the two largest coefficients found in the lasso model, The Relative Humidity AVG and Wind Speed Daily AVG, we can see that the missclassification error is 46.69%. We can see from our prediction table that our model was most likely to make a mistake by predicting success, when in reality the hikers had a failed trip.
+ 
+
+```{r, echo = FALSE, warning = FALSE, message=FALSE}
+library(readr)
+library(kableExtra)
+df <- read_csv("./derived_data/pred_tbl_linearmod.csv")
+df %>%
+  kbl() %>%
+  kable_styling()
+```
 
 Also, apart of this analysis we can see how the model is predicting success or failure.  We see that there is a dividing line in roughly the 30-40 mph wind speed and that the relative humidity also impacts the probability of success.
 
 ![](./figures/raster.png){width=50%}
+
+The next model that we created was a boosting model.  Using the predicting variables of Average Temperature, Average Relative Humidity, Average Daily Wind Speed, Average Wind Direction, and Average Solare Radiation and 1000 trees, the boosting model performed at a 33% misclassification rate.  We can see again that the largest place of error was the times that the model predicted a success, but it was truly a failed summit attempt. 
+
+
+```{r, echo = FALSE, warning = FALSE, message=FALSE}
+library(readr)
+library(kableExtra)
+df <- read_csv("./derived_data/pred_tbl_boostmod.csv")
+df %>%
+  kbl() %>%
+  kable_styling()
+```
+
+While the boosting had an improved misclassfication rate to the linear model, these models are still not great at predicting the success of summitting Mt. Rainier based on weather data.  Based on the misclassification rate I would not trust these models to determine the success of a trip and would not implement these into practice.  I think that using this models in practice would be especially dangerous because much of the error in both of the models was when the model predicted success, but the actual trip was a fail.  The overconfidence that the model has could be misleading and potentially dangerous.
+
+
+#### Conclusion
+
+It is well known that attempting to summit Mt. Rainier is a difficult task and not a guaranteed success.  We can see in our data analysis and PCA clustering that weather seems to have a correlation with the success of hikers.  Our exploration pointed us to temperature and humidity being impactful.  For example, as the temperature increased our plots showed more successful trips and as the humidity decreased the plots and models showed that there were more successful trips.
+
+In our modeling in process, we employed lasso and boosting models.  The lasso model indicated that the Average Daily Wind Speed, Average Relative Humidity, Average Temperature were the most important in predicting the success of a trip,respectively, since they had the largest coefficient values.  Both the boosting and the lasso models did not perform well on the testing data, but we can see with the models that there is a relationship with the weather data and the success of the trip.
+
+Due to the higher than desired misclassification rates for the models, I would not reccommend them to be used in practice.  The models were overconfident and their largest error would be to predict success, when in reality the hikers had a failed trip.  This is arguably the most dangerous error to be making.  In the future, tinkering with the weights to make this type of misclassification more penalized would make this model more useful and safe when used in practice.
+
+There are a couple limiting components to our analysis that to improve the prediction of the success of summit, should be taken into more consideration.  The first is that the data we are analyzing is the report of all the attempted summits. In each trip the hikers' must make a personal judgement as to if they feel as if all the conditions (e.g weather, personal health, physical shape, state of climbing gear,etc.) are acceptable enough to attempt to summit Mt. Rainier.  Therefore, our data has already been filtered to days that hikers believe that summitting is possible based off of the weather forecast.  This means that our model has to extrapolate when it is given weather characteristics that hikers have made the personal decision to not hike in.
+
+Another aspect that for future analysis would be to add in the physical state and experience of the hikers.  I predict that including variables like VO2 Max, BMI, Age, years of hiking experience, or if they have ever summitted Mt. Rainier before, would be influential in determining the success of summit.  While the weather would impact a hiker's experience, the physical task of summitting the mountain is still present even when the weather is perfect.  I think being able to take into account the physicality of the hikers would allow us to account for this added variable in the Mt. Rainier summit attempt.
+
+#### Resources
+
+(1) https://www.kaggle.com/datasets/codersree/mount-rainier-weather-and-climbing-data?select=climbing_statistics.csv
+
+(2) https://nwac.us/
+
+(3) https://www.nps.gov/mora/index.htm
+
+(4) http://www.mountrainierclimbing.us/routes
+
+
 
 
 
