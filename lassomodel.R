@@ -48,11 +48,10 @@ cv_model <- cv.glmnet(x, y, alpha = 1, family = "binomial")
 best_lambda <- cv_model$lambda.min
 
 #produce plot of test MSE by lambda value
-bestlambdaplot <- plot(cv_model) 
 
 ##GGSAVE
-ensure_directory("figures")
-ggsave("figures/best_lambda.png", bestlambdaplot)
+#ensure_directory("figures")
+#ggsave("figures/best_lambda.png", bestlambdaplot)
 
 best_model <- glmnet(x, y, alpha = 1, lambda = best_lambda, family = "binomial")
 coefs <-coef(best_model)
@@ -88,12 +87,17 @@ mc <- sum(rainier_test_tbl$success_trip != rainier_test_tbl$prediction)/length(r
 #pred table
 pred_tbl_lin <- rainier_test_tbl %>% group_by(success_trip, prediction) %>% tally()
 
+#saving the predictions into a table
+ensure_directory("derived_data")
+write_csv(pred_tbl_lin, "derived_data/pred_tbl_linearmod.csv")
+
 #creating a grid table of temp and humidity avg
 grid_vec1 <- seq(from  = 0, to = 70, by = 1)
 grid_vec2 <- seq(from  = 0, to = 100, by = 1)
 grid_tbl <- expand_grid(`Wind Speed Daily AVG` = grid_vec1, `Relative Humidity AVG` = grid_vec2)
 #dim(grid_tbl)
 
+#creating predictions and standardizing
 linpreds3 <- predict(linmod, grid_tbl)
 min <- min(linpreds3)
 max <- max(linpreds3)
@@ -101,6 +105,7 @@ linpreds3_transform <- (linpreds3-min)/(max-min)
 grid_tbl <- grid_tbl %>%
   mutate(prob_of_success = linpreds3_transform,
          prediction = ifelse(prob_of_success < .500, "Fail", "Success"))
+#creating raster plot
 raster <- ggplot(grid_tbl, aes(`Wind Speed Daily AVG`, `Relative Humidity AVG`, z=prob_of_success,fill = prob_of_success)) +
   geom_raster() +
   stat_contour(breaks=c(0.5), color="black")+
