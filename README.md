@@ -14,6 +14,7 @@ Then you should change directories:
 
     cd project611
 
+Note: I used the BIOS Virtual Machine.  If you are not on a BIOS Virtual Machine, things may not work exactly the same, but this has been tested to work on multiple BIOS VM's. 
 To begin run this following code into your terminal:
 
     docker build . -t project611
