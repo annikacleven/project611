@@ -1,23 +1,43 @@
-Hi, this is my 611 Data Science Project. More to come.\
-
 ### What does it take to summit Mt. Rainier?
 
-This project analyzes the trends and statistics related with hikers' success and attempts in 2014 and 2015 at summitting Mt. Rainier. We predict that there are many weather factors that impact the hiker's hiking as well as the amount of hikers on the expedition.
+This project analyzes the trends and statistics related with hikers' success and attempts in 2014 and 2015 at summitting Mt. Rainier in relation to the weather.  This project uses exploratory data analysis to try to investigate any trends and uses lasso and boosting models to predict success based off of weather data. 
 
-At this point in the project, I have done some data exploration to see what the most popular route hikers have used. I have also analyzed the success of the hikers by the day of the year and separated that by the yeear (2014 vs 2015). Also, included in this plot I show the number of hikers that attempted and the number of hikers that successfully summitted.
+### Using this repository 
 
-### Getting Started
+This repository is best used with Docker. You can look at my Dockerfile to understand the necessary elements to be able to run the code that I have written. 
 
-    docker build . --build-arg USER_ID=$(id -u) -t project611
+First you must close my git repository:
 
-And then start an RStudio by typing:
+    git clone https://github.com/annikacleven/project611
+    
+Then you should change directories:
 
-    docker run --rm -v $(pwd):/home/rstudio/work -v /home/users/arcleven/.ssh:/home/rstudio/.ssh -v ~/.git:/home/rstudio/.git -p 8787:8787 -it project611
+    cd project611
 
+To begin run this following code into your terminal:
+
+    docker build . -t project611
+    
+Then to run the docker container run this code: 
+
+    docker run --rm -e USERID=$(id -u) -v $(pwd):/home/rstudio/work -v /home/users/arcleven/.ssh:/home/rstudio/.ssh -v ~/.git:/home/rstudio/.git -p 8787:8787 -it project611
+    
 Once the Rstudio is running connect to it by visiting <https://localhost:8787> in your browser.
 
-To build the final report, visit the terminal in RStudio and type (Ensure sure that you are in the work directory before running the make commands. You can do this by typing : cd work)
 
-    make derived_data/all_data.csv
-    make figures/log_popular_routes.png
-    make figures/hiker_vs_success.png
+### Building the Report
+
+To build the final report follow these commands in the R Studio Terminal:
+
+    cd work
+    
+To clean out all the targets that are built in this project use:
+
+    make clean
+    
+To build the final report use:
+
+    make MtRainierProject.html
+    
+You can create any of the individual targets that are used in the final report (and a few extra) by using the command `make` and then any of the targets listed in my Makefile.  
+
