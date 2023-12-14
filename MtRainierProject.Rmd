@@ -12,8 +12,7 @@ Standing at 14,410 feet above sea level, Mt. Rainier is an iconic landscape in t
   While Mt. Rainier is not Mt. Everest, summiting Mt. Rainier is a difficult challenge and success is surely not guaranteed.  To summit Mt. Rainier, hikers must climb over 9,000 feet and trek over 10 miles, one way.  Along with the physical demand there are the added challenges of elevation sickness, cold temperatures, snowy conditions, and technical hiking, climbing, and mountaineering skills required.  As an avid hiker and backpacker, I wanted to know what were some of the elements that could predict a higher chance of a successful summit trip.
 
 
-  Using data downloaded from Kaggle, I analyzed weather data captured by the Northwest Avalanche Center (https://www.nwac.us) and climbing statistics from (http://www.mountrainierclimbing.us/routes).  This data was collected in 2014 and 2015.  Using this data, I investigated what weather factors, if any, play a role in the summit success of Mt. Rainier. 
- 
+  Using data downloaded from Kaggle, I analyzed weather data captured by the Northwest Avalanche Center (https://www.nwac.us) and climbing statistics from (http://www.mountrainierclimbing.us/routes).  This data was collected in 2014 and 2015.  Using this data, I investigated what weather factors, if any, play a role in the summit success of Mt. Rainier.  The weather variables included in the data set are average temperature, average relative humidity, average daily wind speed, average wind direction, and average solar radiation.
 
 #### Route Selection 
 
@@ -118,6 +117,16 @@ Due to the higher than desired misclassification rates for the models, I would n
 There are a couple limiting components to our analysis that to improve the prediction of the success of summit, should be taken into more consideration.  The first is that the data we are analyzing is the report of all the attempted summits. In each trip the hikers' must make a personal judgement as to if they feel as if all the conditions (e.g weather, personal health, physical shape, state of climbing gear,etc.) are acceptable enough to attempt to summit Mt. Rainier.  Therefore, our data has already been filtered to days that hikers believe that summitting is possible based off of the weather forecast.  This means that our model has to extrapolate when it is given weather characteristics that hikers have made the personal decision to not hike in.
 
 Another aspect that for future analysis would be to add in the physical state and experience of the hikers.  I predict that including variables like VO2 Max, BMI, Age, years of hiking experience, or if they have ever summitted Mt. Rainier before, would be influential in determining the success of summit.  While the weather would impact a hiker's experience, the physical task of summitting the mountain is still present even when the weather is perfect.  I think being able to take into account the physicality of the hikers would allow us to account for this added variable in the Mt. Rainier summit attempt.
+
+#### Future Questions
+
+This investigation has led me to the following questions:
+
+1. What are the physical characteristics that would be meaningful in predicting the success of summit, e.g VO2 Max, age, experience?
+
+2. Are there certain combinations/interactions of weather factors that impact summit success, versus each weather variable standing along? 
+
+3. If a better model was created to predict success of summitting Mt. Rainier, how well would this model perform on other mountains you can summit? 
 
 #### Resources
 
